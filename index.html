@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@700&display=swap" rel="stylesheet">
+    
+    <title>Doom The Earth!</title>
+
+    <!-- The website stylesheet -->
+    <link rel="stylesheet" href="/style/style.css" />
+
+    <!-- The website JavaScript file -->
+    <script src="/script.js" defer></script>
+
+</head>
+
+
+
+<body>
+    
+    <audio id="mainbgm1" src="/resources/mainbgm1.mp3" autoplay loop></audio>
+    <audio id="mainbgm2" src="/resources/mainbgm2.wav" autoplay loop></audio>
+    <audio id="explodesound" src="/resources/explodesound.wav" ></audio>
+    <audio id="clicksound1" src="/resources/clicksound1.wav" ></audio>
+    <audio id="skeletonsound" src="/resources/skeletonsound.mp3" ></audio>
+
+
+
+    <div class="cont" id="cont">
+        <canvas id="space" width="3000" height="1500"></canvas>
+    </div>
+
+
+
+    <div id="explodegif">
+        <img id="explode" src="/resources/explode2.gif" alt="explode">
+    </div>
+
+    <div class="earthgif" id="earthgif">
+        <img id="earthImg" src="/resources/earth.gif" alt="earth" style="width: 450px; height: auto;">
+        <div id="redcircle" onclick="adjustOpacity()"> </div>
+    </div>
+
+
+    <div class="clock">
+        <p class="date">{{ date }}</p>
+        <p class="time">{{ time }}</p>
+    </div>
+
+
+
+    <div id="skeleton">
+        <img id="skeletongif" src="/resources/skeleton.gif" alt="skeleton">
+        <p id="skeletonsays">&nbsp;&nbsp;&nbsp;&nbsp;You<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;seriously<br>&nbsp;&nbsp;&nbsp;&nbsp;wanna<br>do this<br>&nbsp;again?</p>
+    </div>
+
+
+    
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script>
+var clock = new Vue({
+    el: '.clock',
+    data: {
+        time: '',
+        date: ''
+    }
+});
+
+var week = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+var timerID = setInterval(updateTime, 1000);
+
+function updateTime() {
+    var cd = new Date();
+    clock.time = zeroPadding(cd.getHours(), 2) + ':' + zeroPadding(cd.getMinutes(), 2) + ':' + zeroPadding(cd.getSeconds(), 2);
+    clock.date = zeroPadding(cd.getFullYear(), 4) + '/' + zeroPadding(cd.getMonth() + 1, 2) + '/' + zeroPadding(cd.getDate(), 2) + ' ' + week[cd.getDay()];
+}
+
+function zeroPadding(num, digit) {
+    var zero = '';
+    for (var i = 0; i < digit; i++) {
+        zero += '0';
+    }
+    return (zero + num).slice(-digit);
+}
+    
+
+
+// Earth GIF 클릭 시 소리 재생
+document.getElementById('earthgif').addEventListener('click', function() {
+    if (clickCount < 5) { // 다섯 번째 클릭 이전에만 소리 재생
+        var clickSound1 = document.getElementById('clicksound1');
+        if (clickSound1) {
+            clickSound1.play();
+            clickSound1.volume = 0.5; // 볼륨을 1로 설정하여 최대 크기로 조절
+
+        }
+    }
+});
+
+
+document.getElementById('skeleton').addEventListener('click', function() {
+    location.reload(); // 창 새로고침
+});
+document.getElementById('skeleton').addEventListener('mouseover', function() {
+    this.style.filter = 'invert(100%)'; // 이미지 필터 적용
+});
+document.getElementById('skeleton').addEventListener('mouseout', function() {
+    this.style.filter = 'none'; // 이미지 필터 제거
+});
+
+
+
+
+
+
+var opacityIncrements = [0, 0.20, 0.5, 0.70, 0.90, 0];
+var clickCount = 0;
+
+function adjustOpacity() {
+    clickCount++;
+    if (clickCount >= 5) {
+        clearInterval(timerID); // 다섯 번째 클릭 시 타이머를 멈춤
+        document.getElementById('redcircle').style.pointerEvents = 'none'; // 더 이상 클릭이벤트를 받지 않도록 설정
+        document.getElementById('earthgif').style.opacity = 0;
+        document.getElementById('explodegif').style.opacity = 1;
+        document.querySelector('.clock').style.color = '#D00000';
+        document.querySelector('.clock').style.textShadow = '0px 0px 1.5rem #D00000';
+        document.getElementById('cont').style.opacity = 0;
+        document.getElementById('cont').style.transition = 'ease 8s 0s';
+        document.getElementById('skeletongif').style.opacity = 1;
+        document.getElementById('skeletonsays').style.opacity = 1;
+        document.getElementById('skeleton').classList.add('move'); // Skeleton에 move 클래스 추가하여 이동 애니메이션 시작
+
+        // 5초 후에 hid의 opacity를 1로 설정
+        setTimeout(function() {
+        document.getElementById('hid').style.opacity = 1;
+        }, 7000);
+
+        var popupsound = document.getElementById('popupsound');
+        if (popupsound) {
+            setTimeout(function() {
+            popupsound.play();
+            }, 7000); 
+        }
+
+
+        // mainbgm1 ID를 가진 오디오 태그를 찾아서 재생을 멈춤
+        var mainbgm1 = document.getElementById('mainbgm1');
+        if (mainbgm1) {
+            mainbgm1.pause();
+        }
+
+        // mainbgm2 ID를 가진 오디오 태그를 찾아서 재생을 멈춤
+        var mainbgm2 = document.getElementById('mainbgm2');
+        if (mainbgm2) {
+            mainbgm2.pause();
+        }
+
+        // explodesound ID를 가진 오디오 태그를 찾아서 재생함
+        var explodesound = document.getElementById('explodesound');
+        if (explodesound) {
+            explodesound.play();
+            explodesound.volume = 1; // 볼륨을 1로 설정하여 최대 크기로 조절
+        }
+
+        // skeletonsound ID를 가진 오디오 태그를 찾아서 재생함
+        var skeletonsound = document.getElementById('skeletonsound');
+        if (skeletonsound) {
+            skeletonsound.volume = 0; // 초기 볼륨을 0으로 설정
+            setTimeout(function() {
+
+            skeletonsound.play();
+            var duration = skeletonsound.duration;
+
+            // timeupdate 이벤트를 사용하여 볼륨 조절
+            skeletonsound.addEventListener('timeupdate', function() {
+                var currentTime = skeletonsound.currentTime;
+                var volume = 0;
+
+                // 중간 지점까지는 볼륨을 선형적으로 증가
+                if (currentTime < duration / 2) {
+                    volume = currentTime / (duration / 2);
+                }
+
+                // 중간 지점 이후부터는 선형적으로 감소
+                else {
+                    volume = 1 - (2 * Math.abs(currentTime / duration - 0.5));
+                }
+
+                // 볼륨 설정
+                skeletonsound.volume = volume * 0.3; // 전체 볼륨의 30%로 설정
+            });
+        }, 3000); // 3초 후에 재생
+
+    }
+
+        // 5초 후에 explodegif의 opacity를 0으로 설정
+        setTimeout(function() {
+            document.getElementById('explodegif').style.opacity = 0;
+        }, 5000);
+
+    } else {
+        var opacity = opacityIncrements[clickCount];
+        document.getElementById('redcircle').style.opacity = opacity;
+    }
+}
+    </script>
+    
+
+</body>
+</html>
